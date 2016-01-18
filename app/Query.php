@@ -1,6 +1,6 @@
 <?php
 
-namespace Sexlog\ElasticSearch;
+namespace sexlog\ElasticSearch;
 
 class Query extends DSL
 {

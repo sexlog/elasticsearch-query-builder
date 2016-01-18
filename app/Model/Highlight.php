@@ -1,6 +1,6 @@
 <?php
 
-namespace Sexlog\ElasticSearch\Model;
+namespace sexlog\ElasticSearch\Model;
 
 class Highlight
 {

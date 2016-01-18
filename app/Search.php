@@ -1,11 +1,11 @@
 <?php
 
-namespace Sexlog\ElasticSearch;
+namespace sexlog\ElasticSearch;
 
 /**
  * Class Search
  *
- * @package Sexlog\ElasticSearch
+ * @package sexlog\ElasticSearch
  *
  * TODO - Develop a method to validate accepted DSL parameters
  */

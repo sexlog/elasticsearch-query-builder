@@ -1,12 +1,12 @@
 <?php
 
-namespace Sexlog\ElasticSearch;
+namespace sexlog\ElasticSearch;
 
 use Elasticsearch\Client;
 use Monolog\Logger;
-use Sexlog\ElasticSearch\Exceptions\InvalidDocumentException;
-use Sexlog\ElasticSearch\Exceptions\InvalidIndexException;
-use Sexlog\ElasticSearch\Model\Highlight;
+use sexlog\ElasticSearch\Exceptions\InvalidDocumentException;
+use sexlog\ElasticSearch\Exceptions\InvalidIndexException;
+use sexlog\ElasticSearch\Model\Highlight;
 
 class ElasticSearch
 {

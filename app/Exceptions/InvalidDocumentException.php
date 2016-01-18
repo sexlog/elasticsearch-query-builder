@@ -1,6 +1,6 @@
 <?php
 
-namespace Sexlog\ElasticSearch\Exceptions;
+namespace sexlog\ElasticSearch\Exceptions;
 
 class InvalidDocumentException extends \InvalidArgumentException
 {

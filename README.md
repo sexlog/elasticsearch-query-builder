@@ -1,4 +1,4 @@
-# Sexlog/elasticsearch-query-builder
+# sexlog/elasticsearch-query-builder
 
 This is a library to query data from ElasticSearch. I have just started the development of this library and there is a lot to be done.
 

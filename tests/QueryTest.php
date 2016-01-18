@@ -3,13 +3,13 @@
 class QueryTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Sexlog\ElasticSearch\Query
+     * @var \sexlog\ElasticSearch\Query
      */
     private $queryBuilder;
 
     protected function setUp()
     {
-        $this->queryBuilder = new \Sexlog\ElasticSearch\Query();
+        $this->queryBuilder = new \sexlog\ElasticSearch\Query();
     }
 
     public function testMatchPhrasePrefix()

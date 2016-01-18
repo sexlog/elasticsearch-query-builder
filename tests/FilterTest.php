@@ -3,13 +3,13 @@
 class FilterTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Sexlog\ElasticSearch\Filter
+     * @var \sexlog\ElasticSearch\Filter
      */
     private $filter;
 
     protected function setUp()
     {
-        $this->filter = new \Sexlog\ElasticSearch\Filter();
+        $this->filter = new \sexlog\ElasticSearch\Filter();
     }
 
     public function testNotWhere()

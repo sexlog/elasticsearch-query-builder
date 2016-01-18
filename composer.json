@@ -1,5 +1,5 @@
 {
-    "name": "Sexlog/elasticsearch-query-builder",
+    "name": "sexlog/elasticsearch-query-builder",
     "license": "MIT",
     "authors": [
         {
@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Sexlog\\ElasticSearch\\": "app"
+            "sexlog\\ElasticSearch\\": "app"
         }
     }
 }
