@@ -4,7 +4,6 @@ namespace sexlog\ElasticSearch;
 
 use Elasticsearch\Client;
 use Monolog\Logger;
-use sexlog\ElasticSearch\Exceptions\FileNotFoundException;
 use sexlog\ElasticSearch\Exceptions\InvalidDocumentException;
 use sexlog\ElasticSearch\Exceptions\InvalidIndexException;
 use sexlog\ElasticSearch\Model\Highlight;
@@ -92,6 +91,8 @@ class ElasticSearch
         $this->index    = $index;
         $this->document = $document;
         $this->client   = $client;
+
+        $this->translator = null;
     }
 
     /**
@@ -100,6 +101,18 @@ class ElasticSearch
     public function setTranslator(Translator $translator)
     {
         $this->translator = $translator;
+    }
+
+    /**
+     * @return Translator
+     */
+    public function getTranslator()
+    {
+        if (!isset($this->translator)) {
+            $this->translator = new Translator();
+        }
+
+        return $this->translator;
     }
 
     /**
@@ -290,7 +303,7 @@ class ElasticSearch
         try {
             $results = $this->client->search($body);
         } catch (\Exception $e) {
-            if($this->debug) {
+            if ($this->debug) {
                 $this->logger->error($this->translator->get('query_error') . json_encode($body));
             }
 
@@ -301,12 +314,7 @@ class ElasticSearch
             return null;
         }
 
-        $perPage = null;
-        if (isset($body['body']['size'])) {
-            $perPage = intval($body['body']['size']);
-        }
-
-        return $this->processResults($results, $perPage);
+        return $this->processResults($results);
     }
 
     public function delete()
@@ -317,7 +325,7 @@ class ElasticSearch
             $result = $this->client->deleteByQuery($body);
         } catch (\Exception $e) {
             if ($this->debug) {
-                $this->logger->debug($e->getMessage());
+                $this->logger->debug($this->translator->get('query_error') . json_encode($body));
             }
 
             $result = null;
@@ -330,17 +338,24 @@ class ElasticSearch
      * processResults($results)
      *
      * @param $results
-     * @param $perPage
      *
-     * @return \stdClass
+     * @return array
      */
-    private function processResults($results, $perPage = null)
+    private function processResults($results)
     {
         if (!isset($results['hits']['hits'])) {
             return null;
         }
 
-        return $this->processHits($results['hits']['hits']);
+        $hits = $this->processHits($results['hits']['hits']);
+
+        $data = [
+            'documents' => $hits,
+            'total'     => $results['hits']['total'],
+            'max_score' => $results['hits']['max_score'],
+        ];
+
+        return $data;
     }
 
     /**
@@ -373,19 +388,12 @@ class ElasticSearch
         $result->id    = $hit['_id'];
         $result->score = $hit['_score'];
 
-        /*
-         * Quando o usuário especifica os campos na consulta os dados são retornados na propriedade fields
-         */
-        if (isset($hit['fields'])) {
-            foreach ($hit['fields'] as $key => $value) {
-                $result->{$key} = is_array($value) ? array_shift($value) : $value;
-            }
-        } /*
-         * Caso não encontre os dados na propriedade fields, pega da _source
-         */
-        elseif (isset($hit['_source'])) {
-            foreach ($hit['_source'] as $key => $value) {
-                $result->{$key} = is_array($value) ? array_shift($value) : $value;
+        // Highlight has been required and available
+        if (isset($hit['highlight'])) {
+            $result->highlight = new \stdClass;
+
+            foreach ($hit['highlight'] as $key => $value) {
+                $result->highlight->{$key} = is_array($value) ? $value[0] : $value;
             }
         }
 
@@ -393,14 +401,19 @@ class ElasticSearch
             $result->sort = $hit['sort'];
         }
 
-        /*
-         * Caso o usuário tenha solicitado o highlight dos campos buscados, monta o objeto com estes dados
-         */
-        if (isset($hit['highlight'])) {
-            $result->highlight = new \stdClass;
+        // Set properties from the 'field' array
+        if (isset($hit['fields'])) {
+            foreach ($hit['fields'] as $key => $value) {
+                $result->{$key} = is_array($value) ? array_shift($value) : $value;
+            }
 
-            foreach ($hit['highlight'] as $key => $value) {
-                $result->highlight->{$key} = is_array($value) ? $value[0] : $value;
+            return $result;
+        }
+
+        // Set properties from the 'source' array
+        if (isset($hit['_source'])) {
+            foreach ($hit['_source'] as $key => $value) {
+                $result->{$key} = is_array($value) ? array_shift($value) : $value;
             }
         }
 

@@ -27,7 +27,7 @@ class Translator
      */
     private $langs;
 
-    public function __construct($locale)
+    public function __construct($locale = 'en-us')
     {
         $this->setLocale($locale);
 
