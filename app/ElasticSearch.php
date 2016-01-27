@@ -4,9 +4,11 @@ namespace sexlog\ElasticSearch;
 
 use Elasticsearch\Client;
 use Monolog\Logger;
+use sexlog\ElasticSearch\Exceptions\FileNotFoundException;
 use sexlog\ElasticSearch\Exceptions\InvalidDocumentException;
 use sexlog\ElasticSearch\Exceptions\InvalidIndexException;
 use sexlog\ElasticSearch\Model\Highlight;
+use sexlog\ElasticSearch\Model\Translator;
 
 class ElasticSearch
 {
@@ -75,6 +77,16 @@ class ElasticSearch
      */
     private $groupBy = null;
 
+    /**
+     * @var \sexlog\ElasticSearch\Model\Translator;
+     */
+    private $translator;
+
+    /**
+     * @param        $index
+     * @param        $document
+     * @param Client $client
+     */
     public function __construct($index, $document, Client $client)
     {
         $this->index    = $index;
@@ -83,10 +95,20 @@ class ElasticSearch
     }
 
     /**
+     * @param Model\Translator $translator
+     */
+    public function setTranslator(Translator $translator)
+    {
+        $this->translator = $translator;
+    }
+
+    /**
      * @param \Monolog\Logger $logger
      */
     public function setLogger(Logger $logger)
     {
+        $this->debug = true;
+
         $this->logger = $logger;
     }
 
@@ -180,7 +202,10 @@ class ElasticSearch
             $params['body']['highlight']['post_tags'] = '</em>';
 
             foreach ($this->queriedFields as $key => $field) {
-                $params['body']['highlight']['fields'][$key] = ['fragment_size' => 2000, 'number_of_fragments' => 1];
+                $params['body']['highlight']['fields'][$key] = [
+                    'fragment_size'       => 2000,
+                    'number_of_fragments' => 1,
+                ];
             }
         }
 
@@ -265,6 +290,10 @@ class ElasticSearch
         try {
             $results = $this->client->search($body);
         } catch (\Exception $e) {
+            if($this->debug) {
+                $this->logger->error($this->translator->get('query_error') . json_encode($body));
+            }
+
             $results = null;
         }
 
