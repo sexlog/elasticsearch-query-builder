@@ -81,6 +81,8 @@ class ElasticSearch
      */
     private $translator;
 
+    const DEFAULT_PAGE_SIZE = 10;
+
     /**
      * @param        $index
      * @param        $document
@@ -452,6 +454,18 @@ class ElasticSearch
         $this->body['size'] = $records;
 
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPageSize()
+    {
+        if(isset($this->body['size'])) {
+            return $this->body['size'];
+        }
+
+        return static::DEFAULT_PAGE_SIZE;
     }
 
     /**
