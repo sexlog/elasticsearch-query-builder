@@ -9,27 +9,35 @@ My aim is to communicate with ElasticSearch in a fully object oriented way.
 ### Basic query  
   
 ```php
-    // Connection is created on object instatiation
+
     $hosts = ['10.0.0.10:9200'];
     $index = 'products';
     $type = 'product';
     
-    $elasticSearch = new ElasticSearch\ElasticSearch($hosts, $index, $type);
+    $client = \Elasticsearch\ClientBuilder::fromConfig(['hosts' => $hosts]);
+    $elasticSearch = new ElasticSearch\ElasticSearch($index, $type, $client);
 
     // SELECT * FROM products WHERE product_name = 'ElasticSearch' LIMIT 4
     $query = new ElasticSearch\Query();
     $query->where('product_name', 'ElasticSearch');
 
-    $elasticSearch->setQuery($query)->take(4)->get();
+    $elasticSearch->setQuery($query)
+                  ->take(4)
+                  ->get();
 
     // Paging results
-    $elasticSearch->page(1)->get();
-    $elasticSearch->page(2)->get();
+    $results = $elasticSearch->page(1)
+                             ->get();
+                  
+    $results = $elasticSearch->page(2)
+                             ->get();
+                             
 ```
 
 ### Query with a Filter
 
 ```php
+
     /*
      * SELECT id, product_name, price, updated_at 
      * FROM products 
@@ -50,5 +58,27 @@ My aim is to communicate with ElasticSearch in a fully object oriented way.
                   ->get();
     
     // Paging
-    $elasticSearch->page(1)->get(); 
+    $results = $elasticSearch->page(1)
+                             ->get(); 
+                             
+```
+
+### Logging 
+
+```php
+
+    $hosts = ['10.0.0.10:9200'];
+    $index = 'products';
+    $type = 'product';
+    
+    $client = \Elasticsearch\ClientBuilder::fromConfig(['hosts' => $hosts]);
+    $elasticSearch = new ElasticSearch\ElasticSearch($index, $type, $client);
+    
+    $errorHandler = new \Monolog\Handler\StreamHandler('elastic.log', \Monolog\Logger::ERROR);
+
+    $logger = new \Monolog\Logger('elastic'); 
+    $logger->pushHandler($errorHandler); 
+    
+    $elasticSearch->setLogger($logger); 
+    
 ```
