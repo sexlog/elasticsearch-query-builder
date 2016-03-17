@@ -44,7 +44,8 @@ class Query extends DSL
     {
         // if it's a simple query/filter there is no need to create a bool query
         if ((count($this->must) + count($this->should)) === 1) {
-            return array_shift(array_merge($this->must, $this->should));
+            $a = array_merge($this->must, $this->should);
+            return array_shift($a);
         }
 
         // required conditions (AND)
