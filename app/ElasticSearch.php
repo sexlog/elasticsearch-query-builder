@@ -141,11 +141,18 @@ class ElasticSearch
     }
 
     /**
-     * @param $column
+     * @param $attribute
+     *
+     * @throws \InvalidArgumentException
      */
-    public function setGeoDistanceAttribute($column)
+    public function setGeoDistanceAttribute($attribute)
     {
-        $this->geoDistanceAttribute = $column;
+        if (empty($attribute))
+        {
+            throw new \InvalidArgumentException;
+        }
+
+        $this->geoDistanceAttribute = $attribute;
     }
 
     /**
