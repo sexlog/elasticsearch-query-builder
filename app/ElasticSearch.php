@@ -84,7 +84,7 @@ class ElasticSearch
     /**
      * @var string
      */
-    private $columnGeoDistance = 'lat_lon';
+    private $geoDistanceAttribute = 'lat_lon';
 
     const DEFAULT_PAGE_SIZE = 10;
 
@@ -143,9 +143,9 @@ class ElasticSearch
     /**
      * @param $column
      */
-    public function setColumnGeoDistance($column)
+    public function setGeoDistanceAttribute($column)
     {
-        $this->columnGeoDistance = $column;
+        $this->geoDistanceAttribute = $column;
     }
 
     /**
@@ -266,11 +266,11 @@ class ElasticSearch
                 }
 
                 $sort[]['_geo_distance'] = [
-                    $this->columnGeoDistance => $condition[$column],
-                    'order'                  => 'asc',
-                    'unit'                   => 'km',
-                    'mode'                   => 'min',
-                    'distance_type'          => 'sloppy_arc',
+                    $this->geoDistanceAttribute => $condition[$column],
+                    'order'                     => 'asc',
+                    'unit'                      => 'km',
+                    'mode'                      => 'min',
+                    'distance_type'             => 'sloppy_arc',
                 ];
 
                 continue;
