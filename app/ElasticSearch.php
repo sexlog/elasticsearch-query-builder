@@ -81,6 +81,11 @@ class ElasticSearch
      */
     private $translator;
 
+    /**
+     * @var string
+     */
+    private $geoDistanceAttribute = 'lat_lon';
+
     const DEFAULT_PAGE_SIZE = 10;
 
     /**
@@ -133,6 +138,21 @@ class ElasticSearch
     public function setDebug($debug)
     {
         $this->debug = $debug;
+    }
+
+    /**
+     * @param $attribute
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setGeoDistanceAttribute($attribute)
+    {
+        if (empty($attribute))
+        {
+            throw new \InvalidArgumentException;
+        }
+
+        $this->geoDistanceAttribute = $attribute;
     }
 
     /**
@@ -253,11 +273,11 @@ class ElasticSearch
                 }
 
                 $sort[]['_geo_distance'] = [
-                    'lat_lon'       => $condition[$column],
-                    'order'         => 'asc',
-                    'unit'          => 'km',
-                    'mode'          => 'min',
-                    'distance_type' => 'sloppy_arc',
+                    $this->geoDistanceAttribute => $condition[$column],
+                    'order'                     => 'asc',
+                    'unit'                      => 'km',
+                    'mode'                      => 'min',
+                    'distance_type'             => 'sloppy_arc',
                 ];
 
                 continue;
