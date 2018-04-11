@@ -316,7 +316,7 @@ class ElasticSearch
     /**
      * get()
      *
-     * @return null|\stdClass
+     * @return null|array
      */
     public function get()
     {
@@ -326,7 +326,7 @@ class ElasticSearch
             $results = $this->client->search($body);
         } catch (\Exception $e) {
             if ($this->debug) {
-                $this->logger->error($this->translator->get('query_error') . json_encode($body));
+                $this->logger->error('There was an error when querying ElasticSearch. Query sent: ' . json_encode($body));
             }
 
             $results = null;
@@ -361,7 +361,7 @@ class ElasticSearch
      *
      * @param $results
      *
-     * @return array
+     * @return array|null
      */
     private function processResults($results)
     {
