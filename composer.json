@@ -8,7 +8,7 @@
         }
     ],
     "require": {
-        "elasticsearch/elasticsearch": "v7.5.0",
+        "elasticsearch/elasticsearch": "v5.5.0",
         "monolog/monolog": "1.23.0"
     },
     "require-dev": {
