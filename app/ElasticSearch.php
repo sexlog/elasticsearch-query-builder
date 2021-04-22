@@ -356,6 +356,25 @@ class ElasticSearch
         return $result;
     }
 
+
+    public function deleteById($id)
+    {
+        $params = [
+            'id'    => $id,
+            'index' => $this->index,
+            'type'  => $this->document,
+        ];
+        try {
+            $result = $this->client->delete($params);
+        } catch (\Exception $e) {
+            if ($this->debug) {
+                $this->logger->debug($this->translator->get('query_error') . ' params: ' . json_encode($params));
+            }
+            $result = null;
+        }
+        return $result;
+    }
+
     /**
      * processResults($results)
      *
