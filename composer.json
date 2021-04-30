@@ -7,8 +7,14 @@
             "email": "rmartignoni@gmail.com"
         }
     ],
+    "repositories": [
+        {
+            "url": "https://github.com/sexlog/elasticsearch-php.git",
+            "type": "git"
+        }
+    ],
     "require": {
-        "elasticsearch/elasticsearch": "v5.5.0",
+        "elasticsearch/elasticsearch": "v5.5.1",
         "monolog/monolog": "1.23.0"
     },
     "require-dev": {
