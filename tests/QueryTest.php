@@ -1,13 +1,15 @@
 <?php
 
-class QueryTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class QueryTest extends TestCase
 {
     /**
      * @var \sexlog\ElasticSearch\Query
      */
     private $queryBuilder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->queryBuilder = new \sexlog\ElasticSearch\Query();
     }
@@ -242,14 +244,17 @@ class QueryTest extends PHPUnit_Framework_TestCase
 
     public function testMinimumShouldMatch()
     {
+        $this->markTestIncomplete('This test hasn\'t been implemented yet');
     }
 
     public function testNestedAndQuery()
     {
+        $this->markTestIncomplete('This test hasn\'t been implemented yet');
     }
 
     public function testNestedOrQuery()
     {
+        $this->markTestIncomplete('This test hasn\'t been implemented yet');
     }
 
     private function assertExpectedQuery($expectedQuery)
