@@ -1,13 +1,15 @@
 <?php
 
-class DslTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DslTest extends TestCase
 {
     /**
      * @var \sexlog\ElasticSearch\Query
      */
     private $queryBuilder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->queryBuilder = new \sexlog\ElasticSearch\Query();
     }
