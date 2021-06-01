@@ -375,6 +375,31 @@ class ElasticSearch
         return $result;
     }
 
+    public function getById($id)
+    {
+        $params = [
+            'id'    => $id,
+            'index' => $this->index,
+            'type'  => $this->document,
+        ];
+
+        try {
+            $result = $this->client->get($params);
+        } catch (\Exception $e) {
+            if ($this->debug) {
+                $this->logger->debug($this->translator->get('query_error') . ' params: ' . json_encode($params));
+            }
+
+            $result = null;
+        } 
+
+        if (empty($result['_source'])) {
+            return null;
+        }
+
+        return $result['_source'];
+    }
+
     /**
      * processResults($results)
      *
