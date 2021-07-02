@@ -3,6 +3,7 @@
 namespace sexlog\ElasticSearch;
 
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Monolog\Logger;
 use sexlog\ElasticSearch\Exceptions\InvalidDocumentException;
 use sexlog\ElasticSearch\Exceptions\InvalidIndexException;
@@ -366,11 +367,15 @@ class ElasticSearch
         ];
         try {
             $result = $this->client->delete($params);
-        } catch (\Exception $e) {
-            if ($this->debug) {
-                $this->logger->debug($this->translator->get('query_error') . ' params: ' . json_encode($params));
-            }
+        } catch (Missing404Exception $e) {
             $result = null;
+            if ($this->debug) {
+                $this->logger->debug('Object not found #' . $id . $e->getMessage());
+            }
+
+        } catch (\Exception $e) {
+            $result = null;
+            $this->logger->error('There was an error on deleteById ' . $e->getMessage());
         }
         return $result;
     }
@@ -385,13 +390,16 @@ class ElasticSearch
 
         try {
             $result = $this->client->get($params);
-        } catch (\Exception $e) {
+        } catch (Missing404Exception $e) {
+            $result = null;
             if ($this->debug) {
-                $this->logger->debug($this->translator->get('query_error') . ' params: ' . json_encode($params));
+                $this->logger->debug('Object not found #' . $id . $e->getMessage());
             }
 
+        } catch (\Exception $e) {
             $result = null;
-        } 
+            $this->logger->error('There was an error on getById ' . $e->getMessage());
+        }
 
         if (empty($result['_source'])) {
             return null;
