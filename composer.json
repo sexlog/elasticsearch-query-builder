@@ -9,13 +9,13 @@
     ],
     "repositories": [
         {
-            "url": "https://github.com/sexlog/elasticsearch-php.git",
+            "url": "https://github.com/sexlog/elasticsearch-php83.git",
             "type": "git"
         }
     ],
     "require": {
-        "elasticsearch/elasticsearch": "v5.5.1",
-        "monolog/monolog": "1.23.0"
+        "elasticsearch/elasticsearch": "v8.12.0",
+        "monolog/monolog": "2.9.2"
     },
     "require-dev": {
         "phpunit/phpunit": "9.*"
@@ -23,6 +23,11 @@
     "autoload": {
         "psr-4": {
             "sexlog\\ElasticSearch\\": "app"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
         }
     }
 }

@@ -2,8 +2,8 @@
 
 namespace sexlog\ElasticSearch;
 
-use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Monolog\Logger;
 use sexlog\ElasticSearch\Exceptions\InvalidDocumentException;
 use sexlog\ElasticSearch\Exceptions\InvalidIndexException;
@@ -13,7 +13,7 @@ use sexlog\ElasticSearch\Model\Translator;
 class ElasticSearch
 {
     /**
-     * @var \Elasticsearch\Client
+     * @var \Elastic\Elasticsearch\Client
      */
     private $client;
 
@@ -367,9 +367,10 @@ class ElasticSearch
         ];
         try {
             $result = $this->client->delete($params);
-        } catch (Missing404Exception $e) {
+        } catch (ClientResponseException $e) {
             $result = null;
-            if ($this->debug) {
+
+            if ($this->debug && $e->getResponse()->getStatusCode() === 404) {
                 $this->logger->debug('Object not found #' . $id . $e->getMessage());
             }
 
@@ -390,9 +391,10 @@ class ElasticSearch
 
         try {
             $result = $this->client->get($params);
-        } catch (Missing404Exception $e) {
+        } catch (ClientResponseException $e) {
             $result = null;
-            if ($this->debug) {
+
+            if ($this->debug && $e->getResponse()->getStatusCode() === 404) {
                 $this->logger->debug('Object not found #' . $id . $e->getMessage());
             }
 
