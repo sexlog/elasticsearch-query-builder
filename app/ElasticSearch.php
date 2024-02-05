@@ -327,7 +327,7 @@ class ElasticSearch
             $results = $this->client->search($body);
         } catch (\Exception $e) {
             if ($this->debug) {
-                $this->logger->error($e->getMessage() . ' | There was an error when querying ElasticSearch. Query sent: ' . json_encode($body));
+                $this->logger->error('There was an error when querying ElasticSearch. Query sent: ' . json_encode($body));
             }
 
             $results = null;
@@ -369,7 +369,8 @@ class ElasticSearch
             $result = $this->client->delete($params);
         } catch (ClientResponseException $e) {
             $result = null;
-            if ($this->debug) {
+
+            if ($this->debug && $e->getResponse()->getStatusCode() === 404) {
                 $this->logger->debug('Object not found #' . $id . $e->getMessage());
             }
 
@@ -392,7 +393,8 @@ class ElasticSearch
             $result = $this->client->get($params);
         } catch (ClientResponseException $e) {
             $result = null;
-            if ($this->debug) {
+
+            if ($this->debug && $e->getResponse()->getStatusCode() === 404) {
                 $this->logger->debug('Object not found #' . $id . $e->getMessage());
             }
 
