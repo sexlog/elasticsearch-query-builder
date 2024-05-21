@@ -88,7 +88,7 @@ abstract class Search
     protected function prepareFields($fields)
     {
         if (is_null($fields)) {
-            return [];
+            return null;
         }
 
         $fields = str_replace(',', ';', $fields);
@@ -116,6 +116,10 @@ abstract class Search
      */
     protected function _where($column, $value, $nested, $operand)
     {
+        if (empty($value)) {
+            return $this;
+        }
+
         $this->registerQueriedFields($column);
 
         if ($nested) {
@@ -143,6 +147,10 @@ abstract class Search
      */
     protected function _whereIn($column, $value, $match, $operand)
     {
+        if (empty($value)) {
+            return $this;
+        }
+
         $this->registerQueriedFields($column);
 
         if (!is_array($value)) {
