@@ -116,7 +116,7 @@ abstract class Search
      */
     protected function _where($column, $value, $nested, $operand)
     {
-        if (empty($value)) {
+        if (is_null($value)) {
             return $this;
         }
 
@@ -147,7 +147,7 @@ abstract class Search
      */
     protected function _whereIn($column, $value, $match, $operand)
     {
-        if (empty($value)) {
+        if (is_null($value)) {
             return $this;
         }
 
