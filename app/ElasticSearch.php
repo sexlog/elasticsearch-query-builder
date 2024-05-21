@@ -597,7 +597,7 @@ class ElasticSearch
     private function prepareFields($fields)
     {
         if (is_null($fields)) {
-            $fields = '';
+            return ['null'];
         }
 
         if (strpos($fields, '*') !== false) {
