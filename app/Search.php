@@ -88,7 +88,7 @@ abstract class Search
     protected function prepareFields($fields)
     {
         if (is_null($fields)) {
-            return [$fields];
+            $fields = '';
         }
 
         $fields = str_replace(',', ';', $fields);
