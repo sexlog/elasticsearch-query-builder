@@ -240,8 +240,11 @@ abstract class Search
 
         $pos = count($this->{$operand});
 
-        $this->{$operand}[$pos]['match_phrase_prefix'][$column]['query']          = $phrase;
-        $this->{$operand}[$pos]['match_phrase_prefix'][$column]['max_expansions'] = $expansions;
+        $this->{$operand}[$pos]['match_phrase_prefix'][$column]['query'] = $phrase;
+
+        if($expansions){
+            $this->{$operand}[$pos]['match_phrase_prefix'][$column]['max_expansions'] = $expansions;
+        }
 
         return $this;
     }

@@ -86,25 +86,25 @@ class Query extends DSL
     }
 
     /**
-     * @param        $column
-     * @param        $phrase
-     * @param int    $maxExpansions
+     * @param          $column
+     * @param          $phrase
+     * @param int|null $maxExpansions
      *
      * @return $this
      */
-    public function matchPhrasePrefix($column, $phrase, $maxExpansions = 5)
+    public function matchPhrasePrefix($column, $phrase, $maxExpansions = null)
     {
         return $this->_matchPhrasePrefix($column, $phrase, $maxExpansions, 'must');
     }
 
     /**
-     * @param     $column
-     * @param     $phrase
-     * @param int $maxExpansions
+     * @param          $column
+     * @param          $phrase
+     * @param int|null $maxExpansions
      *
-     * @return Filter
+     * @return $this
      */
-    public function orMatchPhrasePrefix($column, $phrase, $maxExpansions = 5)
+    public function orMatchPhrasePrefix($column, $phrase, $maxExpansions = null)
     {
         return $this->_matchPhrasePrefix($column, $phrase, $maxExpansions, 'should');
     }
