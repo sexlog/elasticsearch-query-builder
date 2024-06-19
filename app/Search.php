@@ -379,11 +379,13 @@ abstract class Search
     /**
      * @param $column
      * @param $value
+     * @param $fuzziness
+     * @param $maxExpansions
      * @param $operand
      *
      * @return $this
      */
-    protected function _fuzzy($column, $value, $operand)
+    protected function _fuzzy($column, $value, $fuzziness, $maxExpansions, $operand)
     {
         $this->registerQueriedFields($column);
 
@@ -392,6 +394,14 @@ abstract class Search
         }
 
         $this->{$operand}[]['fuzzy'][$column] = $value;
+
+        if($fuzziness){
+            $this->{$operand}[]['fuzzy'][$column]['fuzziness'] = $fuzziness;
+        }
+
+        if($maxExpansions){
+            $this->{$operand}[]['fuzzy'][$column]['max_expansions'] = $maxExpansions;
+        }
 
         return $this;
     }
