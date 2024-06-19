@@ -218,7 +218,7 @@ class ElasticSearch
         $this->buildQuery($params);
 
         if (!is_null($this->filter)) {
-            $params['body']['query']['filtered']['filter'] = $this->filter;
+            $params['body']['query']['bool']['filter'] = $this->filter;
         }
 
         if (!is_null($this->postFilter)) {
@@ -278,7 +278,7 @@ class ElasticSearch
                     'order'                     => 'asc',
                     'unit'                      => 'km',
                     'mode'                      => 'min',
-                    'distance_type'             => 'sloppy_arc',
+                    'distance_type'             => 'arc',
                 ];
 
                 continue;
@@ -301,10 +301,10 @@ class ElasticSearch
     {
         if (!is_null($this->filter)) {
             if (empty($this->query)) {
-                return $params['body']['query']['filtered']['query']['match_all'] = new \stdClass;
+                return $params['body']['query']['bool']['must']['match_all'] = new \stdClass;
             }
 
-            return $params['body']['query']['filtered']['query'] = $this->query;
+            return $params['body']['query']['bool']['must'] = $this->query;
         }
 
         if (is_null($this->query)) {

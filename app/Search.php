@@ -159,8 +159,7 @@ abstract class Search
 
         $pos = count($this->{$operand});
 
-        $this->{$operand}[$pos]['terms'][$column]     = $value;
-        $this->{$operand}[$pos]['terms']['execution'] = 'bool';
+        $this->{$operand}[$pos]['terms'][$column] = $value;
 
         // $this->{$operand}[$pos]['terms']['minimum_match'] = $operand === 'not' ? 0 : (is_numeric($match) ? $match : 1);
 
