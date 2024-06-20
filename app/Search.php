@@ -393,14 +393,16 @@ abstract class Search
             return $this->bindParameters($column, $value, 'fuzzy', $operand);
         }
 
-        $this->{$operand}[]['fuzzy'][$column] = $value;
+        $pos = count($this->{$operand});
+
+        $this->{$operand}[$pos]['fuzzy'][$column]['value'] = $value;
 
         if($fuzziness){
-            $this->{$operand}[]['fuzzy'][$column]['fuzziness'] = $fuzziness;
+            $this->{$operand}[$pos]['fuzzy'][$column]['fuzziness'] = $fuzziness;
         }
 
         if($maxExpansions){
-            $this->{$operand}[]['fuzzy'][$column]['max_expansions'] = $maxExpansions;
+            $this->{$operand}[$pos]['fuzzy'][$column]['max_expansions'] = $maxExpansions;
         }
 
         return $this;
