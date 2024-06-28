@@ -159,8 +159,7 @@ abstract class Search
 
         $pos = count($this->{$operand});
 
-        $this->{$operand}[$pos]['terms'][$column]     = $value;
-        $this->{$operand}[$pos]['terms']['execution'] = 'bool';
+        $this->{$operand}[$pos]['terms'][$column] = $value;
 
         // $this->{$operand}[$pos]['terms']['minimum_match'] = $operand === 'not' ? 0 : (is_numeric($match) ? $match : 1);
 
@@ -241,8 +240,11 @@ abstract class Search
 
         $pos = count($this->{$operand});
 
-        $this->{$operand}[$pos]['match_phrase_prefix'][$column]['query']          = $phrase;
-        $this->{$operand}[$pos]['match_phrase_prefix'][$column]['max_expansions'] = $expansions;
+        $this->{$operand}[$pos]['match_phrase_prefix'][$column]['query'] = $phrase;
+
+        if($expansions){
+            $this->{$operand}[$pos]['match_phrase_prefix'][$column]['max_expansions'] = $expansions;
+        }
 
         return $this;
     }
@@ -377,11 +379,13 @@ abstract class Search
     /**
      * @param $column
      * @param $value
+     * @param $fuzziness
+     * @param $maxExpansions
      * @param $operand
      *
      * @return $this
      */
-    protected function _fuzzy($column, $value, $operand)
+    protected function _fuzzy($column, $value, $fuzziness, $maxExpansions, $operand)
     {
         $this->registerQueriedFields($column);
 
@@ -389,7 +393,17 @@ abstract class Search
             return $this->bindParameters($column, $value, 'fuzzy', $operand);
         }
 
-        $this->{$operand}[]['fuzzy'][$column] = $value;
+        $pos = count($this->{$operand});
+
+        $this->{$operand}[$pos]['fuzzy'][$column]['value'] = $value;
+
+        if($fuzziness){
+            $this->{$operand}[$pos]['fuzzy'][$column]['fuzziness'] = $fuzziness;
+        }
+
+        if($maxExpansions){
+            $this->{$operand}[$pos]['fuzzy'][$column]['max_expansions'] = $maxExpansions;
+        }
 
         return $this;
     }

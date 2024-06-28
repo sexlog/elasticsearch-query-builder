@@ -35,8 +35,7 @@ class DslTest extends TestCase
 
         $expectedDsl = [
             'terms' => [
-                'login'     => $terms,
-                'execution' => 'bool',
+                'login' => $terms
             ],
         ];
 
