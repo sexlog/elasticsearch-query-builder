@@ -504,6 +504,20 @@ class ElasticSearch
     }
 
     /**
+     * setTrackTotalHits(bool|int $trackTotalHits)
+     *
+     * @param bool|int $trackTotalHits
+     *
+     * @return $this
+     */
+    public function setTrackTotalHits(bool|int $trackTotalHits)
+    {
+        $this->body['track_total_hits'] = $trackTotalHits;
+
+        return $this;
+    }
+
+    /**
      * score($score, $type = 'gt')
      *
      * @param        $score
