@@ -12,10 +12,9 @@ My aim is to communicate with ElasticSearch in a fully object oriented way.
 
     $hosts = ['10.0.0.10:9200'];
     $index = 'products';
-    $type = 'product';
     
     $client = \Elasticsearch\ClientBuilder::fromConfig(['hosts' => $hosts]);
-    $elasticSearch = new ElasticSearch\ElasticSearch($index, $type, $client);
+    $elasticSearch = new ElasticSearch\ElasticSearch($index, $client);
 
     // SELECT * FROM products WHERE product_name = 'ElasticSearch' LIMIT 4
     $query = new ElasticSearch\Query();
@@ -69,10 +68,9 @@ My aim is to communicate with ElasticSearch in a fully object oriented way.
 
     $hosts = ['10.0.0.10:9200'];
     $index = 'products';
-    $type = 'product';
     
     $client = \Elasticsearch\ClientBuilder::fromConfig(['hosts' => $hosts]);
-    $elasticSearch = new ElasticSearch\ElasticSearch($index, $type, $client);
+    $elasticSearch = new ElasticSearch\ElasticSearch($index, $client);
     
     $errorHandler = new \Monolog\Handler\StreamHandler('elastic.log', \Monolog\Logger::ERROR);
 

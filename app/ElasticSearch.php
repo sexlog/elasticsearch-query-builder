@@ -5,7 +5,6 @@ namespace sexlog\ElasticSearch;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Monolog\Logger;
-use sexlog\ElasticSearch\Exceptions\InvalidDocumentException;
 use sexlog\ElasticSearch\Exceptions\InvalidIndexException;
 use sexlog\ElasticSearch\Model\Highlight;
 use sexlog\ElasticSearch\Model\Translator;
@@ -21,11 +20,6 @@ class ElasticSearch
      * @var string
      */
     private $index;
-
-    /**
-     * @var string
-     */
-    private $document;
 
     /**
      * @var \Monolog\Logger
@@ -91,13 +85,11 @@ class ElasticSearch
 
     /**
      * @param        $index
-     * @param        $document
      * @param Client $client
      */
-    public function __construct($index, $document, Client $client)
+    public function __construct($index, Client $client)
     {
         $this->index    = $index;
-        $this->document = $document;
         $this->client   = $client;
 
         $this->translator = null;
@@ -160,45 +152,17 @@ class ElasticSearch
      * Changes the index on which ElasticSearch will run queries.
      *
      * @param      $index
-     * @param null $document
      *
      * @return $this
      * @throws InvalidIndexException
      */
-    public function changeIndex($index, $document = null)
+    public function changeIndex($index)
     {
         if (empty($index)) {
             throw new InvalidIndexException;
         }
 
         $this->index = $index;
-
-        // Change the current document only if supplied
-        if (!is_null($document)) {
-            $this->document = $document;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param      $document
-     * @param null $index
-     *
-     * @return $this
-     * @throws InvalidDocumentException
-     */
-    public function changeDocument($document, $index = null)
-    {
-        if (empty($document)) {
-            throw new InvalidDocumentException;
-        }
-
-        $this->document = $document;
-
-        if (!is_null($index)) {
-            $this->index = $index;
-        }
 
         return $this;
     }
@@ -211,7 +175,6 @@ class ElasticSearch
     private function buildRequestBody(Highlight $highlight)
     {
         $params['index'] = $this->index;
-        $params['type']  = $this->document;
 
         $params['body'] = $this->body;
 
@@ -363,7 +326,6 @@ class ElasticSearch
         $params = [
             'id'    => $id,
             'index' => $this->index,
-            'type'  => $this->document,
         ];
         try {
             $result = $this->client->delete($params);
@@ -386,7 +348,6 @@ class ElasticSearch
         $params = [
             'id'    => $id,
             'index' => $this->index,
-            'type'  => $this->document,
         ];
 
         try {
