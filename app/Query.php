@@ -92,7 +92,7 @@ class Query extends DSL
      *
      * @return $this
      */
-    public function matchPhrasePrefix($column, $phrase, $maxExpansions = null)
+    public function matchPhrasePrefix($column, $phrase, $maxExpansions = 150)
     {
         return $this->_matchPhrasePrefix($column, $phrase, $maxExpansions, 'must');
     }
@@ -104,7 +104,7 @@ class Query extends DSL
      *
      * @return $this
      */
-    public function orMatchPhrasePrefix($column, $phrase, $maxExpansions = null)
+    public function orMatchPhrasePrefix($column, $phrase, $maxExpansions = 150)
     {
         return $this->_matchPhrasePrefix($column, $phrase, $maxExpansions, 'should');
     }
