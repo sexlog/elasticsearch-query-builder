@@ -86,25 +86,25 @@ class Query extends DSL
     }
 
     /**
-     * @param        $column
-     * @param        $phrase
-     * @param int    $maxExpansions
+     * @param          $column
+     * @param          $phrase
+     * @param int|null $maxExpansions
      *
      * @return $this
      */
-    public function matchPhrasePrefix($column, $phrase, $maxExpansions = 5)
+    public function matchPhrasePrefix($column, $phrase, $maxExpansions = null)
     {
         return $this->_matchPhrasePrefix($column, $phrase, $maxExpansions, 'must');
     }
 
     /**
-     * @param     $column
-     * @param     $phrase
-     * @param int $maxExpansions
+     * @param          $column
+     * @param          $phrase
+     * @param int|null $maxExpansions
      *
-     * @return Filter
+     * @return $this
      */
-    public function orMatchPhrasePrefix($column, $phrase, $maxExpansions = 5)
+    public function orMatchPhrasePrefix($column, $phrase, $maxExpansions = null)
     {
         return $this->_matchPhrasePrefix($column, $phrase, $maxExpansions, 'should');
     }
@@ -154,25 +154,29 @@ class Query extends DSL
     }
 
     /**
-     * @param        $column
-     * @param        $value
+     * @param                 $column
+     * @param                 $value
+     * @param int|string|null $fuzziness
+     * @param int|null        $maxExpansions
      *
      * @return $this
      */
-    public function fuzzy($column, $value)
+    public function fuzzy($column, $value, $fuzziness = null, $maxExpansions = null)
     {
-        return $this->_fuzzy($column, $value, 'must');
+        return $this->_fuzzy($column, $value, $fuzziness, $maxExpansions, 'must');
     }
 
     /**
-     * @param $column
-     * @param $value
+     * @param                 $column
+     * @param                 $value
+     * @param int|string|null $fuzziness
+     * @param int|null        $maxExpansions
      *
-     * @return Filter
+     * @return $this
      */
-    public function orFuzzy($column, $value)
+    public function orFuzzy($column, $value, $fuzziness = null, $maxExpansions = null)
     {
-        return $this->_fuzzy($column, $value, 'should');
+        return $this->_fuzzy($column, $value, $fuzziness, $maxExpansions, 'should');
     }
 
     /**

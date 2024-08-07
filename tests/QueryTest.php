@@ -102,7 +102,9 @@ class QueryTest extends TestCase
 
         $expectedQuery = [
             'fuzzy' => [
-                'login' => $term,
+                'login' => [
+                    'value' => $term
+                ],
             ],
         ];
 
@@ -110,20 +112,20 @@ class QueryTest extends TestCase
 
         $this->assertExpectedQuery($expectedQuery);
 
-        $boost     = rand(1, 5);
-        $fuzziness = rand(1, 5);
+        $fuzziness     = rand(1, 5);
+        $maxExpansions = rand(1, 5);
 
         $expectedQuery = [
             'fuzzy' => [
                 'login' => [
                     'value'     => $term,
-                    'boost'     => $boost,
                     'fuzziness' => $fuzziness,
+                    'max_expansions' => $maxExpansions
                 ],
             ],
         ];
 
-        $this->queryBuilder->fuzzy('login', $expectedQuery['fuzzy']['login']);
+        $this->queryBuilder->fuzzy('login', $expectedQuery['fuzzy']['login'], $fuzziness);
 
         $this->assertExpectedQuery($expectedQuery);
     }
@@ -219,7 +221,9 @@ class QueryTest extends TestCase
                 'must'                 => [
                     [
                         'fuzzy' => [
-                            'login' => $first,
+                            'login' => [
+                                'value' => $first
+                            ],
                         ],
                     ],
                 ],
