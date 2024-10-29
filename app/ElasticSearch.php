@@ -504,14 +504,18 @@ class ElasticSearch
     }
 
     /**
-     * setTrackTotalHits(bool|int $trackTotalHits)
+     * setTrackTotalHits($trackTotalHits)
      *
      * @param bool|int $trackTotalHits
      *
      * @return $this
      */
-    public function setTrackTotalHits(bool|int $trackTotalHits)
+    public function setTrackTotalHits($trackTotalHits)
     {
+        if (!is_bool($trackTotalHits) && !is_int($trackTotalHits)) {
+            throw new \InvalidArgumentException('Parameter must be of type bool or int.');
+        }
+
         $this->body['track_total_hits'] = $trackTotalHits;
 
         return $this;
