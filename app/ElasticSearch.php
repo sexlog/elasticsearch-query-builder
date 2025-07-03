@@ -693,9 +693,11 @@ class ElasticSearch
     public function cleanRequest()
     {
         $this->cleanOrder()
-             ->cleanFilters()
-             ->cleanQuery()
-             ->cleanGroup();
+            ->cleanFilters()
+            ->cleanQuery()
+            ->cleanGroup()
+            ->cleanFunctions();
+
 
         return $this;
     }
@@ -744,6 +746,7 @@ class ElasticSearch
 
     /**
      * Define o boost_mode e o score_mode para a consulta function_score.
+     * Adiciona validação para aceitar apenas os modos suportados pelo Elasticsearch.
      *
      * @param string $scoreMode 'multiply', 'sum', 'avg', 'first', 'max', 'min'
      * @param string $boostMode 'multiply', 'replace', 'sum', 'avg', 'max', 'min'
@@ -751,8 +754,17 @@ class ElasticSearch
      */
     public function setScoreFunctionsMode(string $scoreMode = 'sum', string $boostMode = 'multiply'): self
     {
-        $this->scoreMode = $scoreMode;
-        $this->boostMode = $boostMode;
+        $validScoreModes = ['multiply', 'sum', 'avg', 'first', 'max', 'min'];
+        $validBoostModes = ['multiply', 'replace', 'sum', 'avg', 'max', 'min'];
+
+        if (in_array($scoreMode, $validScoreModes, true)) {
+            $this->scoreMode = $scoreMode;
+        }
+
+        if (in_array($boostMode, $validBoostModes, true)) {
+            $this->boostMode = $boostMode;
+        }
+
         return $this;
     }
 
@@ -814,34 +826,22 @@ class ElasticSearch
             return null;
         }
 
-        return $this->processResults($results); // Reutiliza o processador de resultados existente
+        return $this->processResults($results);
     }
 
     /**
-     * Constrói o corpo da requisição para 'function_score'.
+     *
+     * Constrói o corpo da requisição para 'function_score' reutilizando a lógica existente.
      *
      * @return array
      */
     private function buildFunctionScoreRequestBody(): array
     {
-        $params = [
-            'index' => $this->index,
-            'body'  => $this->body, // Reutiliza 'from', 'size', etc.
-        ];
-
-        $mainQuery = ['match_all' => new \stdClass];
-        if (!is_null($this->query)) {
-            $mainQuery = $this->query;
-        }
-
-        $queryWithFilter = ['bool' => ['must' => $mainQuery]];
-        if (!is_null($this->filter)) {
-            $queryWithFilter['bool']['filter'] = $this->filter;
-        }
+        $params = $this->buildRequestBody(new Highlight());
 
         $functionScoreQuery = [
             'function_score' => [
-                'query'     => $queryWithFilter,
+                'query'     => $params['body']['query'],
                 'functions' => $this->functions,
             ],
         ];
@@ -855,37 +855,11 @@ class ElasticSearch
         }
 
         $params['body']['query'] = $functionScoreQuery;
-
-        // Reutiliza outras lógicas de construção existentes
-        if (!is_null($this->sort)) {
-            $params['body']['sort'] = $this->buildSort();
-        }
-
-        if (!is_null($this->groupBy)) {
-            $params['body']['aggs'] = $this->groupBy;
-        }
-
-        if (!is_null($this->queriedFields)) {
-            $highlight = [
-                'pre_tags'  => '<em>',
-                'post_tags' => '</em>',
-                'fields'    => [],
-            ];
-
-            foreach ($this->queriedFields as $key => $field) {
-                $highlight['fields'][$key] = new \stdClass();
-            }
-            $params['body']['highlight'] = $highlight;
-        }
-
-        if ($this->debug) {
-            $this->logger->debug('JSON (FunctionScore): ' . json_encode($params));
-        }
-
+        
         return $params;
     }
 
-     /**
+    /**
      * Limpa as novas propriedades. Deve ser chamado no cleanRequest.
      * @return $this
      */
