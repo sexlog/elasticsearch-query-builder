@@ -83,6 +83,21 @@ class ElasticSearch
 
     const DEFAULT_PAGE_SIZE = 10;
 
+      /**
+     * @var array
+     */
+    private $functions = [];
+
+    /**
+     * @var string|null
+     */
+    private $boostMode = null;
+
+    /**
+     * @var string|null
+     */
+    private $scoreMode = null;
+
     /**
      * @param        $index
      * @param Client $client
@@ -504,18 +519,14 @@ class ElasticSearch
     }
 
     /**
-     * setTrackTotalHits($trackTotalHits)
+     * setTrackTotalHits(bool|int $trackTotalHits)
      *
      * @param bool|int $trackTotalHits
      *
      * @return $this
      */
-    public function setTrackTotalHits($trackTotalHits)
+    public function setTrackTotalHits(bool|int $trackTotalHits)
     {
-        if (!is_bool($trackTotalHits) && !is_int($trackTotalHits)) {
-            throw new \InvalidArgumentException('Parameter must be of type bool or int.');
-        }
-
         $this->body['track_total_hits'] = $trackTotalHits;
 
         return $this;
@@ -728,6 +739,161 @@ class ElasticSearch
     {
         $this->groupBy = null;
 
+        return $this;
+    }
+
+    /**
+     * Define o boost_mode e o score_mode para a consulta function_score.
+     *
+     * @param string $scoreMode 'multiply', 'sum', 'avg', 'first', 'max', 'min'
+     * @param string $boostMode 'multiply', 'replace', 'sum', 'avg', 'max', 'min'
+     * @return $this
+     */
+    public function setScoreFunctionsMode(string $scoreMode = 'sum', string $boostMode = 'multiply'): self
+    {
+        $this->scoreMode = $scoreMode;
+        $this->boostMode = $boostMode;
+        return $this;
+    }
+
+    /**
+     * Adiciona uma função de decaimento 'gauss' para a consulta.
+     *
+     * @param string      $field   O campo (geo_point, date ou numeric).
+     * @param mixed       $origin  O ponto de origem (ex: "lat,lon").
+     * @param string      $scale   A distância onde o score começa a decair.
+     * @param string|null $offset  Distância para começar a aplicar o decaimento.
+     * @param float       $decay   Fator de decaimento (entre 0 e 1.0).
+     * @param float|null  $weight  Multiplicador para o score da função.
+     * @return $this
+     */
+    public function addGaussFunction(string $field, $origin, string $scale, ?string $offset = null, float $decay = 0.5, ?float $weight = null): self
+    {
+        $gauss = [
+            $field => [
+                'origin' => $origin,
+                'scale'  => $scale,
+                'decay'  => $decay,
+            ],
+        ];
+
+        if (!is_null($offset)) {
+            $gauss[$field]['offset'] = $offset;
+        }
+
+        $function = ['gauss' => $gauss];
+
+        if (!is_null($weight)) {
+            $function['weight'] = $weight;
+        }
+
+        $this->functions[] = $function;
+        return $this;
+    }
+
+    /**
+     * Executa uma busca usando function_score.
+     * Este método constrói a query de forma isolada, sem afetar o método get().
+     *
+     * @return array|null
+     */
+    public function searchWithFunctions(): ?array
+    {
+        $body = $this->buildFunctionScoreRequestBody();
+
+        try {
+            $results = $this->client->search($body);
+        } catch (\Exception $e) {
+            if ($this->debug) {
+                $this->logger->error('There was an error when querying ElasticSearch with functions. Query sent: ' . json_encode($body));
+            }
+            return null;
+        }
+
+        if (empty($results)) {
+            return null;
+        }
+
+        return $this->processResults($results); // Reutiliza o processador de resultados existente
+    }
+
+    /**
+     * Constrói o corpo da requisição para 'function_score'.
+     *
+     * @return array
+     */
+    private function buildFunctionScoreRequestBody(): array
+    {
+        $params = [
+            'index' => $this->index,
+            'body'  => $this->body, // Reutiliza 'from', 'size', etc.
+        ];
+
+        $mainQuery = ['match_all' => new \stdClass];
+        if (!is_null($this->query)) {
+            $mainQuery = $this->query;
+        }
+
+        $queryWithFilter = ['bool' => ['must' => $mainQuery]];
+        if (!is_null($this->filter)) {
+            $queryWithFilter['bool']['filter'] = $this->filter;
+        }
+
+        $functionScoreQuery = [
+            'function_score' => [
+                'query'     => $queryWithFilter,
+                'functions' => $this->functions,
+            ],
+        ];
+
+        if ($this->boostMode) {
+            $functionScoreQuery['function_score']['boost_mode'] = $this->boostMode;
+        }
+
+        if ($this->scoreMode) {
+            $functionScoreQuery['function_score']['score_mode'] = $this->scoreMode;
+        }
+
+        $params['body']['query'] = $functionScoreQuery;
+
+        // Reutiliza outras lógicas de construção existentes
+        if (!is_null($this->sort)) {
+            $params['body']['sort'] = $this->buildSort();
+        }
+
+        if (!is_null($this->groupBy)) {
+            $params['body']['aggs'] = $this->groupBy;
+        }
+
+        if (!is_null($this->queriedFields)) {
+            $highlight = [
+                'pre_tags'  => '<em>',
+                'post_tags' => '</em>',
+                'fields'    => [],
+            ];
+
+            foreach ($this->queriedFields as $key => $field) {
+                $highlight['fields'][$key] = new \stdClass();
+            }
+            $params['body']['highlight'] = $highlight;
+        }
+
+        if ($this->debug) {
+            $this->logger->debug('JSON (FunctionScore): ' . json_encode($params));
+        }
+
+        return $params;
+    }
+
+     /**
+     * Limpa as novas propriedades. Deve ser chamado no cleanRequest.
+     * @return $this
+     */
+    public function cleanFunctions(): self
+    {
+        $this->functions = [];
+        $this->boostMode = null;
+        $this->scoreMode = null;
         return $this;
     }
 }
