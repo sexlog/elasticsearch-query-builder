@@ -214,7 +214,7 @@ class Query extends DSL
      * @param Query $query O objeto Query contendo a consulta a ser aninhada na cláusula 'must'.
      * @return self Retorna a própria instância da classe para permitir o encadeamento de métodos (fluent interface).
      */
-    public function must(Query $query): self
+    public function addMustClause(Query $query): self
     {
         $this->must[] = $query->getQuery();
         return $this;
