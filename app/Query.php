@@ -202,4 +202,21 @@ class Query extends DSL
     {
         return $this->_fuzzyLike($column, $value, $params, 'should');
     }
+
+    /**
+     * Adiciona uma sub-query à cláusula 'must' da consulta booleana.
+     *
+     * Este método encapsula uma consulta inteira como uma condição obrigatória.
+     * Todas as consultas adicionadas através deste método devem ser satisfeitas
+     * para que um documento seja considerado uma correspondência. É o equivalente
+     * ao operador lógico "AND".
+     *
+     * @param Query $query O objeto Query contendo a consulta a ser aninhada na cláusula 'must'.
+     * @return self Retorna a própria instância da classe para permitir o encadeamento de métodos (fluent interface).
+     */
+    public function must(Query $query): self
+    {
+        $this->must[] = $query->getQuery();
+        return $this;
+    }
 }
