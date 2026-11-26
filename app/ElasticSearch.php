@@ -6,6 +6,7 @@ use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Monolog\Logger;
 use sexlog\ElasticSearch\Exceptions\InvalidIndexException;
+use sexlog\ElasticSearch\Log\QueryErrorMessage;
 use sexlog\ElasticSearch\Model\Highlight;
 use sexlog\ElasticSearch\Model\Translator;
 
@@ -305,7 +306,7 @@ class ElasticSearch
             $results = $this->client->search($body);
         } catch (\Exception $e) {
             if ($this->debug) {
-                $this->logger->error('There was an error when querying ElasticSearch. Query sent: ' . json_encode($body));
+                $this->logger->error(QueryErrorMessage::create($this->index, $e));
             }
 
             $results = null;
@@ -326,7 +327,7 @@ class ElasticSearch
             $result = $this->client->deleteByQuery($body);
         } catch (\Exception $e) {
             if ($this->debug) {
-                $this->logger->debug($this->translator->get('query_error') . json_encode($body));
+                $this->logger->debug(QueryErrorMessage::create($this->index, $e, $this->getTranslator()->get('query_error')));
             }
 
             $result = null;
@@ -817,7 +818,9 @@ class ElasticSearch
             $results = $this->client->search($body);
         } catch (\Exception $e) {
             if ($this->debug) {
-                $this->logger->error('There was an error when querying ElasticSearch with functions. Query sent: ' . json_encode($body));
+                $this->logger->error(
+                    QueryErrorMessage::create($this->index, $e, 'There was an error when querying ElasticSearch with functions.')
+                );
             }
             return null;
         }
